@@ -1,0 +1,12 @@
+node_modules
+dist
+.env
+.DS_Store
+*.log
+apps/api/node_modules
+apps/api/dist
+*.db
+apps/api/.env.sqlite
+apps/web/node_modules
+apps/web/dist
+apps/web/tsconfig.tsbuildinfo
