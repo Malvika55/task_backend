@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "concurrently -n api,web -c cyan,magenta \"npm run dev --workspace @p5/api\" \"npm run dev --workspace @p5/web\"",
     "build": "npm run build --workspace @p5/api && npm run build --workspace @p5/web",
-    "postinstall": "npm run prisma:generate --workspace @p5/api",
+    "postinstall": "node scripts/postinstall.js",
     "db:generate": "npm run prisma:generate --workspace @p5/api",
     "db:push": "npm run prisma:push --workspace @p5/api",
     "db:seed": "npm run prisma:seed --workspace @p5/api"

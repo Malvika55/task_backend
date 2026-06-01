@@ -8,9 +8,15 @@ export const notFoundHandler = (_req: Request, _res: Response, next: NextFunctio
 
 export const errorHandler = (error: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (error instanceof ZodError) {
+    const fieldErrors = error.flatten().fieldErrors;
+    const firstMessage =
+      Object.values(fieldErrors)
+        .flat()
+        .find((msg): msg is string => typeof msg === 'string') ?? 'Validation failed';
+
     return res.status(400).json({
-      message: 'Validation failed',
-      errors: error.flatten(),
+      message: firstMessage,
+      errors: fieldErrors,
     });
   }
 

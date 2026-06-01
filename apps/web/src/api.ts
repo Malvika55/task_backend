@@ -4,6 +4,7 @@ const apiBase = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000/api/
 
 type ApiResponse<T> = {
   message?: string;
+  errors?: Record<string, string[] | undefined>;
   user?: SessionUser;
   users?: SessionUser[];
   task?: Task;
@@ -11,20 +12,55 @@ type ApiResponse<T> = {
   data?: T;
 };
 
+function formatApiError(payload: ApiResponse<unknown>, status: number) {
+  if (payload.message && payload.message !== 'Validation failed') {
+    return payload.message;
+  }
+
+  const fieldMessages = payload.errors
+    ? Object.entries(payload.errors)
+        .flatMap(([field, msgs]) => (msgs ?? []).map((m) => `${field}: ${m}`))
+    : [];
+
+  if (fieldMessages.length) {
+    return fieldMessages[0];
+  }
+
+  if (payload.message) {
+    return payload.message;
+  }
+
+  if (status === 401) return 'Please sign in again.';
+  if (status === 403) return 'You do not have permission for this action.';
+  if (status === 0 || status >= 500) return 'Cannot reach the API. Start the backend with npm run dev.';
+
+  return `Request failed (${status})`;
+}
+
 async function request<T>(path: string, init: RequestInit = {}) {
-  const response = await fetch(`${apiBase}${path}`, {
-    ...init,
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(init.headers ?? {}),
-    },
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${apiBase}${path}`, {
+      ...init,
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(init.headers ?? {}),
+      },
+    });
+  } catch {
+    throw new Error(
+      window.location.hostname.includes('github.io')
+        ? 'API is not reachable from GitHub Pages. Run the project locally (npm run dev) or deploy the API and set API_URL in GitHub Actions.'
+        : 'Cannot reach the API. Start the backend: npm run dev',
+    );
+  }
 
   const payload = (await response.json().catch(() => ({}))) as ApiResponse<T>;
 
   if (!response.ok) {
-    throw new Error(payload.message ?? `Request failed with status ${response.status}`);
+    throw new Error(formatApiError(payload, response.status));
   }
 
   return payload;

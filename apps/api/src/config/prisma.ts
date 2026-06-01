@@ -21,7 +21,7 @@ export async function initPrisma(): Promise<PrismaClient> {
     return prisma;
   } catch (err) {
     // Fallback to SQLite file-based DB for local dev
-    const sqliteFile = `file:${path.join(process.cwd(), 'apps', 'api', 'prisma', 'dev.db')}`;
+    const sqliteFile = `file:${path.join(__dirname, '..', '..', 'prisma', 'dev.db')}`;
     process.env.DATABASE_URL = process.env.DATABASE_URL || sqliteFile;
     prisma = new PrismaClient();
     await prisma.$connect();

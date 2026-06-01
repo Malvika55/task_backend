@@ -27,6 +27,8 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        env:
+          SKIP_PRISMA: '1'
 
       - name: Build frontend
         run: npm run build --workspace @p5/web

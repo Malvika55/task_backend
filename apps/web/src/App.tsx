@@ -39,10 +39,10 @@ export default function App() {
     }
   };
 
-  const loadDashboard = async () => {
+  const loadDashboard = async (role: SessionUser['role']) => {
     const taskResponse = await api.listTasks();
     setTasks(taskResponse.tasks ?? []);
-    if (isAdmin) {
+    if (role === 'ADMIN') {
       const userResponse = await api.listUsers();
       setUsers(userResponse.users ?? []);
     } else {
@@ -52,7 +52,7 @@ export default function App() {
 
   const refreshDashboard = async () => {
     if (!currentUser) return;
-    await loadDashboard();
+    await loadDashboard(currentUser.role);
   };
 
   useEffect(() => {
@@ -61,10 +61,10 @@ export default function App() {
 
   useEffect(() => {
     if (!currentUser) return;
-    void loadDashboard().catch((loadError: unknown) => {
+    void loadDashboard(currentUser.role).catch((loadError: unknown) => {
       setError(loadError instanceof Error ? loadError.message : 'Failed to load dashboard.');
     });
-  }, [currentUser, isAdmin]);
+  }, [currentUser]);
 
   const handleAuth = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
