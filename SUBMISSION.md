@@ -31,11 +31,15 @@ Replace `YOUR_USERNAME` and `YOUR_REPO_NAME`.
 
 ## Step 3 — Enable GitHub Pages
 
-1. Repo → **Settings** → **Pages**
-2. **Build and deployment** → Source: **GitHub Actions**
-3. After the workflow runs, your site will be at:
+1. Push to `main` and wait for the **Deploy to GitHub Pages** workflow to finish (Actions tab).
+2. Repo → **Settings** → **Pages**
+3. **Build and deployment** → Source: **Deploy from a branch**
+4. Branch: **gh-pages** · Folder: **/ (root)**
+5. Save. Your site will be at:
 
    `https://YOUR_USERNAME.github.io/YOUR_REPO_NAME/`
+
+   Example: https://malvika55.github.io/task_backend/
 
 ## Step 4 — What to put in the Google Form
 

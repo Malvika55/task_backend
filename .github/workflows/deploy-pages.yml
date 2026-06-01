@@ -1,4 +1,4 @@
-name: Deploy frontend to GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -6,16 +6,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
+  contents: write
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,23 +24,18 @@ jobs:
         env:
           SKIP_PRISMA: '1'
 
-      - name: Build frontend
+      - name: Build frontend for GitHub Pages
         run: npm run build --workspace @p5/web
         env:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
-          # Set repository variable API_URL to your deployed API (e.g. Render) for a live demo.
           VITE_API_BASE_URL: ${{ vars.API_URL || 'http://localhost:4000/api/v1' }}
 
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: apps/web/dist
+      - name: Ensure Jekyll is disabled
+        run: touch apps/web/dist/.nojekyll
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./apps/web/dist
+          cname: false
